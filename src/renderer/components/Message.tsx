@@ -7,7 +7,7 @@ import SmartToyIcon from '@mui/icons-material/SmartToy'
 import SettingsIcon from '@mui/icons-material/Settings'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
 import { useTranslation } from 'react-i18next'
-import { Message, SessionType } from '../../config/types'
+import { Message, SessionType, FileWithBase64 } from '../../config/types'
 import { useAtomValue, useSetAtom } from 'jotai'
 import {
     showMessageTimestampAtom,
@@ -26,6 +26,8 @@ import * as dateFns from 'date-fns'
 import { clsx } from 'clsx'
 import { estimateTokensFromMessages } from '@/packages/token'
 import { countWord } from '@/packages/word-count'
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 
 export interface Props {
     id?: string
@@ -53,6 +55,21 @@ export default function Message(props: Props) {
     const setOpenSettingWindow = useSetAtom(openSettingDialogAtom)
 
     const { msg, className, collapseThreshold, hiddenButtonGroup, small, onDelete } = props
+    // Add these states
+    const [isImageOpen, setIsImageOpen] = useState(false);
+    const [selectedImage, setSelectedImage] = useState<FileWithBase64 | null>(null);
+
+    // Add these handlers
+    const handleImageClick = (file: FileWithBase64) => {
+        setSelectedImage(file);
+        setIsImageOpen(true);
+    };
+
+    const handleCloseImage = () => {
+        setIsImageOpen(false);
+        setSelectedImage(null);
+    };
+
 
     const handleDeleteMessage = () => {
         const id = msg.id
@@ -126,7 +143,30 @@ export default function Message(props: Props) {
             [{isCollapsed ? t('Expand') : t('Collapse')}]
         </span>
     )
+    const renderAttachments = () => {
+        if (!msg.attachments || msg.attachments.length === 0) return null
 
+        return (
+            <div className="flex flex-wrap gap-2 p-2">
+                {msg.attachments.map((file, index) => (
+                    file.type === 'image' ? (
+                        <div key={`${file.name}-${index}`} className="relative" onClick={() => handleImageClick(file)}
+                        >
+                            <img
+                                src={file.base64Data}
+                                alt={file.name}
+                                className="max-w-[200px] max-h-[200px] object-cover rounded"
+                            />
+                        </div>
+                    ) : (
+                        <div key={`${file.name}-${index}`} className="bg-gray-600 opacity-50 p-1 px-2 rounded">
+                            <span className="text-sm">{file.name}</span>
+                        </div>
+                    )
+                ))}
+            </div>
+        )
+    }
     return (
         <Box
             ref={ref}
@@ -211,6 +251,7 @@ export default function Message(props: Props) {
                             className={clsx('msg-content', { 'msg-content-small': small })}
                             sx={small ? { fontSize: theme.typography.body2.fontSize } : {}}
                         >
+                            {renderAttachments()}
                             {enableMarkdownRendering && !isCollapsed ? (
                                 <Markdown>{content}</Markdown>
                             ) : (
@@ -232,6 +273,13 @@ export default function Message(props: Props) {
                     </Grid>
                 </Grid>
             </Grid>
+        
+                <Lightbox
+                open={isImageOpen }
+                slides={[{ src: selectedImage?.base64Data ||'' }, ]}
+                close={handleCloseImage}
+                />
+      
         </Box>
     )
 }

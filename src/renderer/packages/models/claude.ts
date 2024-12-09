@@ -53,7 +53,7 @@ export default class Claude extends Base {
                                 type: 'string',
                                 description: 'The search query',
                             },
-                            category:{
+                            category: {
                                 type: 'string',
                                 enum: [ // Added enum to specify allowed values
                                     'company',
@@ -68,21 +68,21 @@ export default class Claude extends Base {
                                     'pdf',
                                     'financial report'
                                 ],
-                                description:'A data category to focus on, with higher comprehensivity and data cleanliness.'
+                                description: 'A data category to focus on, with higher comprehensivity and data cleanliness.'
                             },
-                            includeDomains:{
-                                type:'array',
-                                items:{
-                                    type:'string'
-                                },
-                                description:'List of domains to include in the search. If specified, results will only come from these domains.'
-                            },
-                            excludeDomains:{
+                            includeDomains: {
                                 type: 'array',
                                 items: {
                                     type: 'string'
                                 },
-                                description:'List of domains to exclude in the search. If specified, results will not include any from these domains.'
+                                description: 'List of domains to include in the search. If specified, results will only come from these domains.'
+                            },
+                            excludeDomains: {
+                                type: 'array',
+                                items: {
+                                    type: 'string'
+                                },
+                                description: 'List of domains to exclude in the search. If specified, results will not include any from these domains.'
                             },
                         },
                         required: ['query'],
@@ -110,15 +110,33 @@ export default class Claude extends Base {
         }
     }
 
-    async createMessage(model: string, messages: Message[] | object[], system: string, tools?: Anthropic.Tool[]) {
-        return await this.client.messages.create({
+    async createMessage(model: string, messages: Message[], system: string, tools?: Anthropic.Tool[]) {
+        // remap system prompt
+        if (messages[0].role == 'system') {
+            const system = messages[0].content
+            this.defaultPrompt = system
+            messages.shift()
+        }
+        let _messages :any= []
+        messages.forEach(({ content, role, attachments = [] }: Message) => {
+            let _content = []
+            attachments.forEach(({ type, media_type, base64Data }) => {
+                // there is type error in official sdk
+                _content.push({ type, source: { type: 'base64', media_type, data: base64Data?.split(',')[1] } })
+            })
+            _content.push({ type: 'text', text: content })
+            
+            _messages.push({ role: role === 'system' ? 'user' : role, content: _content })
+
+
+        })
+
+        return await this.client.beta.messages.create({
             model,
+            betas: ["pdfs-2024-09-25"],
             max_tokens: this.maxTokens,
             temperature: this.temperature,
-            messages: (messages as Message[]).map(({ content, role }) => ({
-                content,
-                role: role === 'system' ? 'user' : role,
-            })),
+            messages: _messages,
             system,
             stream: true,
             tools,
@@ -126,21 +144,16 @@ export default class Claude extends Base {
     }
 
     async callChatCompletion(
-        messages: Message[] | Anthropic.Message[],
+        messages: Message[],
         signal?: AbortSignal,
         onResultChange?: onResultChange
     ): Promise<any> {
         let result = ''
         try {
-            if ( this.toolCallCount> this.maxToolCallCounts){
+            if (this.toolCallCount > this.maxToolCallCounts) {
                 throw Error('exceed the maxmiunm tool calls')
             }
-            // remap system prompt
-            if (messages[0].role == 'system') {
-                const system = messages[0].content
-                this.defaultPrompt = system
-                messages.shift()
-            }
+
             let pendingToolCalls: {
                 toolCall: any
                 input: string
@@ -187,7 +200,7 @@ export default class Claude extends Base {
                                     const inputObj = JSON.parse(input)
                                     const { name, id } = toolCall
                                     console.log('Tool input:', inputObj)
-                                    this.toolCallCount+=1
+                                    this.toolCallCount += 1
                                     let toolResult = ''
                                     switch (name) {
                                         case 'search':

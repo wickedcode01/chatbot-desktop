@@ -1,5 +1,5 @@
 import { getDefaultStore } from 'jotai'
-import { Settings, createMessage, Message, Session } from '../../config/types'
+import { Settings, createMessage, Message, Session, FileWithBase64 } from '../../config/types'
 import * as atoms from './atoms'
 import * as promptFormat from '../packages/prompts'
 import * as Sentry from '@sentry/react'
@@ -290,8 +290,7 @@ function genMessageContext(settings: Settings, msgs: Message[]) {
             continue
         }
         const size = estimateTokensFromMessages([msg]) + 20 // 20 is a rough estimation of the overhead of the prompt
-        if (settings.aiProvider === 'openai') {
-        }
+
         if (openaiMaxContextMessageCount <= 20 && prompts.length >= openaiMaxContextMessageCount + 1) {
             break
         }
@@ -309,18 +308,7 @@ export function initEmptyChatSession(): Session {
     const settings = store.get(atoms.settingsAtom)
     const provider = settings.aiProvider
     let messages: Message[] = []
-    switch (provider) {
-        case 'openai':
-            messages = [
-                {
-                    id: uuidv4(),
-                    role: 'system',
-                    content: settings.defaultPrompt || defaults.getDefaultPrompt(),
-                },
-            ]
-            break
-        default:
-    }
+
     return {
         id: uuidv4(),
         name: new Date().toLocaleDateString() || 'Untitled',

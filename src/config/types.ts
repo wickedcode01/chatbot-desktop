@@ -14,6 +14,7 @@ export interface Message {
     role: MessageRole
     content: string
     name?: string
+    attachments?: FileWithBase64[]
 
     cancel?: () => void
     generating?: boolean
@@ -143,3 +144,7 @@ export enum Theme {
 
 
 
+export interface FileWithBase64 extends File {
+    base64Data?: string;
+    media_type: string
+}
