@@ -61,7 +61,6 @@ export function createEmpty(type: 'chat') {
 export function switchCurrentSession(sessionId: string) {
     const store = getDefaultStore()
     store.set(atoms.currentSessionIdAtom, sessionId)
-    scrollActions.scrollToBottom()
 }
 
 export function remove(session: Session) {
@@ -152,6 +151,7 @@ export async function submitNewUserMessage(params: {
     insertMessage(currentSessionId, newUserMsg)
     let newAssistantMsg = createMessage('assistant', '')
     if (needGenerating) {
+        scrollActions.scrollToBottom(true)
         newAssistantMsg.generating = true
         insertMessage(currentSessionId, newAssistantMsg)
         return generate(currentSessionId, newAssistantMsg)
