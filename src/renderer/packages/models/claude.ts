@@ -117,16 +117,20 @@ export default class Claude extends Base {
             this.defaultPrompt = system
             messages.shift()
         }
-        let _messages :any= []
+        let _messages:any = []
         messages.forEach(({ content, role, attachments = [] }: Message) => {
             let _content = []
+            if (typeof content == 'string') {
+                _content.push({ type: 'text', text: content })
+            } else {
+                _content.push(content[0])
+            }
             attachments.forEach(({ type, media_type, base64Data }) => {
-                // there is type error in official sdk
                 _content.push({ type, source: { type: 'base64', media_type, data: base64Data?.split(',')[1] } })
             })
-            _content.push({ type: 'text', text: content })
-            
-            _messages.push({ role: role === 'system' ? 'user' : role, content: _content })
+
+
+            _messages.push({ role, content: _content })
 
 
         })

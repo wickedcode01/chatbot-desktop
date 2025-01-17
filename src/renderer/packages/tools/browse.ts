@@ -8,11 +8,9 @@ export const browse = async (urls: string[], options?: { includeHtmlTags?: boole
 
     const requestBody = {
         ids: urls,
-        contents: {
-            text: {
-                maxCharacters: options?.maxCharacters ?? 2048,
-                includeHtmlTags: options?.includeHtmlTags ?? false,
-            },
+        text: {
+            maxCharacters: options?.maxCharacters ?? 2048,
+            includeHtmlTags: options?.includeHtmlTags ?? false,
         },
         // livecrawl: "always"
     }

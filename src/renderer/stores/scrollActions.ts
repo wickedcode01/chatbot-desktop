@@ -9,7 +9,7 @@ export function scrollToBottom(force: boolean = false, behavior: 'auto' | 'smoot
         const scrollHeight = messageListRef.current.scrollHeight;
         const clientHeight = messageListRef.current.clientHeight;
         const bottomOffset = scrollHeight - scrollTop - clientHeight;
-        if (bottomOffset <= 250 || force) {
+        if (bottomOffset <= 100 || force) {
             messageListRef.current.scrollTo({
                 top: scrollHeight,
                 behavior,
