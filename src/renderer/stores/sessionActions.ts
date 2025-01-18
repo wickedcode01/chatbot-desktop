@@ -151,9 +151,12 @@ export async function submitNewUserMessage(params: {
     insertMessage(currentSessionId, newUserMsg)
     let newAssistantMsg = createMessage('assistant', '')
     if (needGenerating) {
-        scrollActions.scrollToBottom(true)
         newAssistantMsg.generating = true
         insertMessage(currentSessionId, newAssistantMsg)
+        setTimeout(() => {
+            scrollActions.scrollToBottom(true)
+        }, 0);
+
         return generate(currentSessionId, newAssistantMsg)
     }
 }
