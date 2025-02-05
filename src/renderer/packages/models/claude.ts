@@ -9,9 +9,6 @@ import * as defaults from '../../../config/defaults'
 import * as settingActions from '@/stores/settingActions'
 import { searchPrompt } from '@/packages/prompts'
 export const claudeModelConfigs = {
-    'claude-3-opus-20240229': { maxTokens: 4096 },
-    'claude-3-sonnet-20240229': { maxTokens: 4096 },
-    'claude-3-haiku-20240307': { maxTokens: 4096 },
     'claude-3-5-haiku-latest': { maxTokens: 8192 },
     'claude-3-5-sonnet-latest': { maxTokens: 8192 },
 } as const

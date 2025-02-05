@@ -9,8 +9,12 @@ import { SendHorizontal, Settings2, TextSearch, ImagePlus, Paperclip } from 'luc
 import { clsx } from 'clsx'
 import icon from '../static/icon.png'
 import MiniButton from './MiniButton'
+import MiniSelect from './MiniSelect';
 import _ from 'lodash'
-import { isImageFile,convertToBase64 } from '@/util'
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material'
+import { isImageFile, convertToBase64 } from '@/util'
+
+
 export interface Props {
     currentSessionId: string
     currentSessionType: SessionType
@@ -68,7 +72,7 @@ export default function InputBox(props: Props) {
                     name: file.name,
                     size: file.size,
                     base64Data,
-                    type: isImageUpload?'image':'document',
+                    type: isImageUpload ? 'image' : 'document',
                     media_type: file.type || 'application/octet-stream'
                 } as FileWithBase64)
             } catch (error) {
@@ -83,6 +87,7 @@ export default function InputBox(props: Props) {
         }
         event.target.value = ''
     }
+ 
     const handleSubmit = (needGenerating = true) => {
         if (messageInput.trim() === '') {
             return
@@ -125,7 +130,7 @@ export default function InputBox(props: Props) {
         setSettings({ ...settings, searchSwitch: !settings.searchSwitch })
     }
     const renderAttachmentPreview = (file: FileWithBase64, index: number) => {
-        if (file.type=='image') {
+        if (file.type == 'image') {
             return (
                 <div key={`${file.name}-${index}`} className="relative group p-1 flex items-center">
                     <img
@@ -170,6 +175,28 @@ export default function InputBox(props: Props) {
                 borderTopColor: theme.palette.divider,
             }}
         >
+            <div className="w-full h-1 cursor-ns-resize"
+                onMouseDown={(e) => {
+                    const startY = e.clientY;
+                    const startHeight = inputRef.current?.offsetHeight || 107;
+                    const onMouseMove = (moveEvent: MouseEvent) => {
+                        const newHeight = startHeight + (startY - moveEvent.clientY);
+                        if (inputRef.current) {
+                            inputRef.current.style.height = `${Math.max(107, newHeight)}px`;
+                        }
+                    };
+                    const onMouseUp = () => {
+                        window.removeEventListener('mousemove', onMouseMove);
+                        window.removeEventListener('mouseup', onMouseUp);
+                    };
+                    window.addEventListener('mousemove', onMouseMove);
+                    window.addEventListener('mouseup', onMouseUp);
+                }}
+                style={{
+                    // backgroundColor: theme.palette.divider,
+                    cursor: 'ns-resize'
+                }}
+            />
             <div className='w-full mx-auto flex flex-col'>
                 <div className="flex flex-row flex-nowrap justify-between py-1">
                     <div className="flex flex-row items-center">
@@ -226,6 +253,9 @@ export default function InputBox(props: Props) {
                             />
                             <Paperclip size={22} strokeWidth={1} />
                         </MiniButton>
+
+
+
                         <MiniButton
                             className="mr-2"
                             style={{ color: theme.palette.text.primary }}
@@ -239,6 +269,7 @@ export default function InputBox(props: Props) {
                         >
                             <Settings2 size="22" strokeWidth={1} />
                         </MiniButton>
+                        <MiniSelect />
                     </div>
                     <div className="flex flex-row items-center">
                         <MiniButton
@@ -270,7 +301,7 @@ export default function InputBox(props: Props) {
                         className={clsx(
                             'w-full',
                             'min-h-[107px]',
-                            'overflow-y resize-none border-none outline-none',
+                            'overflow-y-auto resize-none border-none outline-none',
                             'bg-transparent p-1'
                         )}
                         value={messageInput}

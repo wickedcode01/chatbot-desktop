@@ -1,7 +1,7 @@
 {
     "name": "claude-desktop",
     "productName": "claude-desktop",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A desktop application for Claude.ai",
     "author": {
         "name": "wickedcode",

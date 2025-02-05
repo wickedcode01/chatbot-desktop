@@ -36,7 +36,6 @@ export const enableMarkdownRenderingAtom = focusAtom(settingsAtom, (optic) => op
 export const autoGenerateTitleAtom = focusAtom(settingsAtom, (optic) => optic.prop('autoGenerateTitle'))
 // search config
 export const switchSearchAtom = focusAtom(settingsAtom, (optic) => optic.prop('searchSwitch'))
-export const licenseDetailAtom = focusAtom(settingsAtom, (optic) => optic.prop('licenseDetail'))
 
 // myCopilots
 export const myCopilotsAtom = atomWithStorage<CopilotDetail[]>(StorageKey.MyCopilots, [], storage)

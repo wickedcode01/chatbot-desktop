@@ -5,13 +5,17 @@ import { useTranslation } from 'react-i18next'
 import * as sessionActions from '../stores/sessionActions'
 import * as atoms from '../stores/atoms'
 import { useAtom } from 'jotai'
+import { settingsAtom } from '@/stores/atoms'
 import { trackingEvent } from '@/packages/event'
-
+import TemperatureSlider from '../components/TemperatureSlider'
+import MaxContextMessageCountSlider from '../components/MaxContextMessageCountSlider'
+import { Settings, Theme } from '@/../config/types'
 interface Props {}
 
 export default function ChatConfigWindow(props: Props) {
     const { t } = useTranslation()
     const [chatConfigDialogSession, setChatConfigDialogSession] = useAtom(atoms.chatConfigDialogAtom)
+    const [modeleditingData, setmodelEditingData] = useAtom(settingsAtom);
 
     const [editingData, setEditingData] = React.useState<Session | null>(chatConfigDialogSession)
     useEffect(() => {
@@ -95,6 +99,16 @@ export default function ChatConfigWindow(props: Props) {
                         maxRows={8}
                         value={systemPrompt}
                         onChange={(event) => setSystemPrompt(event.target.value)}
+                    />
+                </div>
+                <div className="mt-1">
+                    <TemperatureSlider
+                        value={modeleditingData.temperature}
+                        onChange={(v) => setmodelEditingData({ ...modeleditingData, temperature: v })}
+                    />
+                    <MaxContextMessageCountSlider
+                        value={modeleditingData.openaiMaxContextMessageCount}
+                        onChange={(v) => setmodelEditingData({ ...modeleditingData, openaiMaxContextMessageCount: v })}
                     />
                 </div>
             </DialogContent>

@@ -33,7 +33,7 @@ export default function ClaudeSetting({ settingsEdit, setSettingsEdit }: ModelCo
                     type="text"
                     fullWidth
                     variant="outlined"
-                    value={settingsEdit.claudeApiHost}
+                    value={settingsEdit.claudeApiHost || ''}
                     placeholder="https://api.anthropic.com"
                     defaultValue="https://api.anthropic.com"
                     onValueChange={(value) => {
