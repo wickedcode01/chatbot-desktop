@@ -17,8 +17,8 @@ Online Browse
 - Exa.ai
 
 Todo
-- File upload
-- Image upload
+- ✅File upload (only support pdf)
+- ✅Image upload
 
 # How to enable search feature
 Settings -> Advanced -> RAG Settings
