@@ -1,6 +1,6 @@
 {
-    "name": "claude-desktop",
-    "productName": "claude-desktop",
+    "name": "chatbot-desktop",
+    "productName": "chatbot-desktop",
     "version": "0.0.1",
     "description": "A desktop application for claude.ai API",
     "main": "./src/main/main.ts",

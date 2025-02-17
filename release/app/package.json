@@ -1,8 +1,8 @@
 {
-    "name": "claude-desktop",
+    "name": "chatbot-desktop",
     "productName": "claude-desktop",
-    "version": "1.0.1",
-    "description": "A desktop application for Claude.ai",
+    "version": "2.0.0",
+    "description": "A desktop application for LLM chatbots",
     "author": {
         "name": "wickedcode",
         "email": "wickedcode@outlook.com",

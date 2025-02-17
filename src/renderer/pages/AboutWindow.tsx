@@ -29,12 +29,12 @@ export default function AboutWindow(props: Props) {
 
     return (
         <Dialog open={props.open} onClose={props.close} fullWidth>
-            <DialogTitle>{t('About Claude Desktop')}</DialogTitle>
+            <DialogTitle>{t('About Chatbot Desktop')}</DialogTitle>
             <DialogContent>
                 <Box sx={{ textAlign: 'center', padding: '0 20px' }}>
                     <img src={iconPNG} style={{ width: '100px', margin: 0, display: 'inline-block' }} />
                     <h3 style={{ margin: '4px 0 5px 0' }}>
-                        Claude Desktop
+                        Chatbot Desktop
                         {/\d/.test(versionHook.version) ? `(v${versionHook.version})` : ''}
                     </h3>
                     <p className="p-0 m-0">{t('slogan')}</p>

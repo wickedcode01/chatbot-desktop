@@ -49,17 +49,17 @@ export default class MenuBuilder {
 
     buildDarwinTemplate(): MenuItemConstructorOptions[] {
         const subMenuAbout: DarwinMenuItemConstructorOptions = {
-            label: 'Claude Desktop',
+            label: 'Chatbot Desktop',
             submenu: [
                 {
-                    label: 'About Claude Desktop',
+                    label: 'About Chatbot Desktop',
                     selector: 'orderFrontStandardAboutPanel:',
                 },
                 { type: 'separator' },
                 { label: 'Services', submenu: [] },
                 { type: 'separator' },
                 {
-                    label: 'Hide Claude Desktop',
+                    label: 'Hide Chatbot Desktop',
                     accelerator: 'Command+H',
                     selector: 'hide:',
                 },
