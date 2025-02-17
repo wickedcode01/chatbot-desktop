@@ -9,7 +9,7 @@ export const browse = async (urls: string[], options?: { includeHtmlTags?: boole
     const requestBody = {
         ids: urls,
         text: {
-            maxCharacters: options?.maxCharacters ?? 2048,
+            maxCharacters: options?.maxCharacters ?? 10000,
             includeHtmlTags: options?.includeHtmlTags ?? false,
         },
         // livecrawl: "always"

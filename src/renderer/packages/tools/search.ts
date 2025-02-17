@@ -47,7 +47,7 @@ const exaSearch = async (input: InputObj) => {
             numResults: num ?? 5,
             contents:{
                 text:{
-                    maxCharacters: 5000
+                    maxCharacters: 10000
                 },
                 // summary: true
             }

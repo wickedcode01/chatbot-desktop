@@ -63,6 +63,7 @@ export function createMessage(role: MessageRole = MessageRoleEnum.User, content:
 
 export enum ModelProvider {
     Claude = 'claude',
+    OpenRouter = 'openrouter'
 }
 
 export interface ModelSettings {
@@ -76,7 +77,9 @@ export interface ModelSettings {
     claudeApiKey: string
     claudeApiHost?: string
     claudeModel: string
-
+    // openrouter
+    openrouterKey: string
+    openrouterModel: string
     // general config
     temperature: number
     topP: number

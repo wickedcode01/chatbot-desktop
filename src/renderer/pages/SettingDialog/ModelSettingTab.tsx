@@ -4,7 +4,7 @@ import { ModelProvider, ModelSettings } from '../../../config/types'
 import AIProviderSelect from '../../components/AIProviderSelect'
 import ClaudeSetting from './ClaudeSetting'
 
-
+import OpenRouterSetting from './OpenRouterSetting'
 
 interface ModelConfigProps {
     settingsEdit: ModelSettings
@@ -19,6 +19,9 @@ export default function ModelSettingTab(props: ModelConfigProps) {
             <Divider sx={{ marginTop: '10px', marginBottom: '24px' }} />
             {settingsEdit.aiProvider === ModelProvider.Claude && (
                 <ClaudeSetting settingsEdit={settingsEdit} setSettingsEdit={setSettingsEdit} />
+            )}
+            {settingsEdit.aiProvider === ModelProvider.OpenRouter && (
+                <OpenRouterSetting settingsEdit={settingsEdit} setSettingsEdit={setSettingsEdit} />
             )}
         </Box>
     )

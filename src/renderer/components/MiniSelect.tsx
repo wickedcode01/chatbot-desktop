@@ -3,7 +3,8 @@ import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import * as atoms from '../stores/atoms';
 import { ModelProvider } from '../../config/types';
-import { models } from '../packages/models/claude';
+import { models as Claudemodels } from '../packages/models/claude';
+import { models as Openmodels} from '../packages/models/openrouter';
 import { SelectChangeEvent } from '@mui/material';
 import { Settings } from '../../config/types';
 
@@ -22,8 +23,10 @@ export default function MiniSelect() {
     const getCurrentModels = () => {
         switch (settings.aiProvider) {
             case ModelProvider.Claude:
-                return models;
+                return Claudemodels;
             // Add cases for other providers here
+            case ModelProvider.OpenRouter:
+                return Openmodels;
             default:
                 return [];
         }

@@ -9,6 +9,8 @@ export function settings(): Settings {
         googleCx: '',
         claudeApiKey: '',
         claudeModel: '',
+        openrouterKey: '',
+        openrouterModel: '',
         exaAPIKey: '',
         model: '',
         temperature: 0.7,

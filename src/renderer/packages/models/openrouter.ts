@@ -1,42 +1,37 @@
-import Base, { onResultChange } from './base'
-import { Message, ModelSettings } from '../../../config/types'
 import { ApiError, BaseError } from './errors'
+import Base, { onResultChange } from './base'
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { streamText, CoreMessage } from 'ai'
+import { Message, ModelSettings } from '../../../config/types'
 import { performSearch, browse } from '../tools/index'
 import * as atoms from '../../stores/atoms'
 import { getDefaultStore } from 'jotai'
 import * as defaults from '../../../config/defaults'
 import * as settingActions from '@/stores/settingActions'
 import { searchPrompt } from '@/packages/prompts'
-import { createAnthropic } from "@ai-sdk/anthropic"
-import { streamText, CoreMessage } from 'ai'
-
 import { z } from 'zod'
-export const claudeModelConfigs = {
-    'claude-3-5-haiku-latest': { maxTokens: 8192 },
-    'claude-3-5-sonnet-latest': { maxTokens: 8192 },
-} as const
 
-export type Model = keyof typeof claudeModelConfigs
-export const models = Object.keys(claudeModelConfigs).sort() as Model[]
+interface Options {
+    openrouterKey: string
+    model: string
+    temperature: number
+    topP: number
+}
 
-export default class Claude extends Base {
+export default class OpenRouter extends Base {
+    public name = 'OpenRouter'
     private client
-    private model: string
-    private temperature: number
-    private topP: number
+    public options: Options
     private defaultPrompt: string
     private tool_list = {}
     private maxToolCallCounts: number = 3
 
-    constructor(settings: ModelSettings) {
+    constructor(options: Options) {
         super()
-        this.model = settings.claudeModel
-        this.client = createAnthropic({
-            apiKey: settings.claudeApiKey,
-            baseURL: settings.claudeApiHost
+        this.options = options
+        this.client = createOpenRouter({
+            apiKey: options.openrouterKey,
         })
-        this.temperature = settings.temperature
-        this.topP = settings.topP
 
         const store = getDefaultStore()
         this.defaultPrompt = store.get(atoms.settingsAtom).defaultPrompt || defaults.getDefaultPrompt()
@@ -93,6 +88,7 @@ export default class Claude extends Base {
         onResultChange?: onResultChange
     ): Promise<string> {
         try {
+
             // Process messages to handle attachments in the correct format
             const processedMessages = messages.map(msg => {
                 if (msg.attachments && msg.attachments.length > 0) {
@@ -112,16 +108,26 @@ export default class Claude extends Base {
                                 // optional
                                 // mimeType:attachment.media_type
                             })
-                        } else if (attachment.type === 'file' && attachment.media_type == 'application/pdf') {
+                        }
+                        else if (attachment.type === 'file' && attachment.media_type == 'application/pdf') {
                             // no test
-                            // todo 
+                            // todo ...
+                            // base64 - encoded file:
+                            // string with base - 64 encoded content
+                            // data URL string, e.g.data: image / png; base64,...
+                            // binary data:
+                            // ArrayBuffer
+                            // Uint8Array
+                            // Buffer
+                            // URL:
+                            // http(s) URL string, e.g.https://example.com/some.pdf
+                            // URL object, e.g.new URL('https://example.com/some.pdf')
                             content.push({
                                 type: 'file',
                                 mimeType: 'application/pdf',
                                 data: attachment.base64Data
                             })
-                        }
-                        else {
+                        } else {
                             // For other files, append as text
                             content.push({
                                 type: 'text',
@@ -137,35 +143,42 @@ export default class Claude extends Base {
                 }
                 return msg
             }) as CoreMessage[]
-            let result = ''
-
-            const { textStream, steps } = await streamText({
-                model: this.client(this.model),
+            const { textStream, steps, response } = await streamText({
+                model: this.client(this.options.model),
                 messages: processedMessages,
-                temperature: this.temperature,
-                topP: this.topP,
+                temperature: this.options.temperature,
+                topP: this.options.topP,
                 tools: Object.keys(this.tool_list).length > 0 ? this.tool_list : undefined,
-                maxSteps: this.maxToolCallCounts
+                maxSteps: this.maxToolCallCounts  // 控制工具调用的最大次数
             })
 
-
+            let result = ''
+            // let currentMessages = [...messages]
             for await (const chunk of textStream) {
                 result += chunk
                 if (onResultChange) {
                     onResultChange(result)
                 }
             }
-
-
+            // Process each tool call and add results to messages
+            // const toolcalls = await steps;
+            // const allToolResults = toolcalls.flatMap(step => step.toolResults);
+            // console.log(allToolResults);
             return result
 
         } catch (err) {
-            console.log(err)
             if (err instanceof Error) {
-                throw new ApiError('Claude API Error: ' + err.message)
+                throw new ApiError('OpenRouter API Error: ' + err.message)
             } else {
                 throw new BaseError(' Unknown Error')
             }
         }
     }
 }
+
+// Available models from OpenRouter
+export const ModelConfigs = {
+    'cognitivecomputations/dolphin3.0-r1-mistral-24b:free': { maxTokens: 33000 },
+    'google/gemini-2.0-pro-exp-02-05:free': { maxTokens: 2000000 },
+}
+export const models = Object.keys(ModelConfigs).sort()

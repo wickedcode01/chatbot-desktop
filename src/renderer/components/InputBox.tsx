@@ -72,7 +72,7 @@ export default function InputBox(props: Props) {
                     name: file.name,
                     size: file.size,
                     base64Data,
-                    type: isImageUpload ? 'image' : 'document',
+                    type: isImageUpload ? 'image' : 'file',
                     media_type: file.type || 'application/octet-stream'
                 } as FileWithBase64)
             } catch (error) {
