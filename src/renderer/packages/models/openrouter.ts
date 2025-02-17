@@ -149,28 +149,26 @@ export default class OpenRouter extends Base {
                 temperature: this.options.temperature,
                 topP: this.options.topP,
                 tools: Object.keys(this.tool_list).length > 0 ? this.tool_list : undefined,
-                maxSteps: this.maxToolCallCounts  // 控制工具调用的最大次数
+                maxSteps: this.maxToolCallCounts,
+                onError: (err) => { throw err }
             })
 
             let result = ''
-            // let currentMessages = [...messages]
             for await (const chunk of textStream) {
                 result += chunk
                 if (onResultChange) {
                     onResultChange(result)
                 }
             }
-            // Process each tool call and add results to messages
-            // const toolcalls = await steps;
-            // const allToolResults = toolcalls.flatMap(step => step.toolResults);
-            // console.log(allToolResults);
             return result
 
-        } catch (err) {
+        } catch (err: any) {
             if (err instanceof Error) {
                 throw new ApiError('OpenRouter API Error: ' + err.message)
+            } else if (err.error) {
+                throw new ApiError(`statusCode: ${err.error.statusCode} ${err.error.message}`)
             } else {
-                throw new BaseError(' Unknown Error')
+                throw new BaseError('Unknown Error' + JSON.stringify(err))
             }
         }
     }

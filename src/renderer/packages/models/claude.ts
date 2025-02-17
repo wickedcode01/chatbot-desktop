@@ -145,7 +145,10 @@ export default class Claude extends Base {
                 temperature: this.temperature,
                 topP: this.topP,
                 tools: Object.keys(this.tool_list).length > 0 ? this.tool_list : undefined,
-                maxSteps: this.maxToolCallCounts
+                maxSteps: this.maxToolCallCounts,
+                onError: (err) => {
+                    throw err
+                }
             })
 
 
@@ -159,12 +162,14 @@ export default class Claude extends Base {
 
             return result
 
-        } catch (err) {
-            console.log(err)
+        } catch (err:any) {
             if (err instanceof Error) {
                 throw new ApiError('Claude API Error: ' + err.message)
-            } else {
-                throw new BaseError(' Unknown Error')
+            }
+            else if (err.error){
+                throw new ApiError(`statusCode: ${err.error.statusCode} ${err.error.message}`)
+            }else{
+                throw new BaseError('Unknown Error'+JSON.stringify(err))
             }
         }
     }
