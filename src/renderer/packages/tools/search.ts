@@ -1,13 +1,27 @@
 import { getDefaultStore } from 'jotai'
 import * as atoms from '../../stores/atoms'
 
-export const performSearch = async (engine: number = 1, input: InputObj) => {
-    //
+export const performSearch = async (input: InputObj) => {
+    // auto swicth
+    const store = getDefaultStore()
+    const settings = store.get(atoms.settingsAtom)
+    const { googleCx, googleAPIKey, exaAPIKey } = settings
+    let engine;
+    if(exaAPIKey){
+        engine = 1;
+    }
+    // using google only when exa is absent
+    else if (googleCx && googleAPIKey){
+        engine = 2
+    }
+    console.info(input);
     switch (engine) {
         case 1:
             return exaSearch(input)
         case 2:
             return googleSearch(input)
+        default:
+            throw new Error('Please input your api key')
     }
 }
 
@@ -16,12 +30,11 @@ const googleSearch = async (input: InputObj): Promise<string> => {
     const settings = store.get(atoms.settingsAtom)
     const { googleCx, googleAPIKey } = settings
     const { query, num } = input
-    console.log(input)
     try {
         const params = {
             key: googleAPIKey,
             cx: googleCx,
-            q: encodeURIComponent(query),
+            q: query,
             num: num ?? '5',
         }
         const url = `https://www.googleapis.com/customsearch/v1?${new URLSearchParams(params).toString()}`
@@ -37,7 +50,6 @@ const exaSearch = async (input: InputObj) => {
     const settings = store.get(atoms.settingsAtom)
     const { exaAPIKey } = settings
     const { num } = input
-    console.log(input)
     const options = {
         method: 'POST',
         headers: { 'x-api-key': exaAPIKey, 'Content-Type': 'application/json' },

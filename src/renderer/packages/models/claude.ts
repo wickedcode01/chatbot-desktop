@@ -67,7 +67,7 @@ export default class Claude extends Base {
                             .describe('List of domains to exclude in the search')
                     }),
                     execute: async (args: any) => {
-                        const result = await performSearch(1, args)
+                        const result = await performSearch(args)
                         return JSON.stringify(result)
                     }
                 },

@@ -5,7 +5,9 @@ export const browse = async (urls: string[], options?: { includeHtmlTags?: boole
     const store = getDefaultStore()
     const settings = store.get(atoms.settingsAtom)
     const { exaAPIKey } = settings
-
+    if(!exaAPIKey){
+        throw new Error('Please input your exa api key')
+    }
     const requestBody = {
         ids: urls,
         text: {

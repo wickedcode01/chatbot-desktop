@@ -169,7 +169,7 @@
     },
     "browserslist": [],
     "build": {
-        "productName": "Claude desktop",
+        "productName": "Chatbot desktop",
         "appId": "",
         "asar": true,
         "asarUnpack": "**\\*.{node,dll}",

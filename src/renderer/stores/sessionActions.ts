@@ -310,11 +310,11 @@ export function initEmptyChatSession(): Session {
     const store = getDefaultStore()
     const settings = store.get(atoms.settingsAtom)
     const provider = settings.aiProvider
+    const isgenTitle = settings.autoGenerateTitle
     let messages: Message[] = []
-
     return {
         id: uuidv4(),
-        name: new Date().toLocaleDateString() || 'Untitled',
+        name: isgenTitle ? 'Untitled' : new Date().toLocaleDateString(),
         type: 'chat',
         messages,
     }

@@ -1,6 +1,6 @@
 {
     "name": "chatbot-desktop",
-    "productName": "claude-desktop",
+    "productName": "chatbot-desktop",
     "version": "2.0.0",
     "description": "A desktop application for LLM chatbots",
     "author": {
