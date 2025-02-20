@@ -6,7 +6,7 @@ import TemperatureSlider from '../../components/TemperatureSlider'
 import PasswordTextField from '../../components/PasswordTextField'
 import TextFieldReset from '@/components/TextFieldReset'
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
-import { models } from '../../packages/models/claude'
+import ModelManagement from '@/components/ModelManagement'
 import MaxContextMessageCountSlider from '../../components/MaxContextMessageCountSlider'
 interface ModelConfigProps {
     settingsEdit: ModelSettings
@@ -53,6 +53,7 @@ export default function ClaudeSetting({ settingsEdit, setSettingsEdit }: ModelCo
                     </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
+                    <ModelManagement modelKey="claudeModels" settingsEdit={settingsEdit} setSettingsEdit={setSettingsEdit} />
                     <FormControl fullWidth variant="outlined" margin="dense">
                         <InputLabel>{t('model')}</InputLabel>
                         <Select
@@ -60,7 +61,7 @@ export default function ClaudeSetting({ settingsEdit, setSettingsEdit }: ModelCo
                             onChange={(e) => setSettingsEdit({ ...settingsEdit, claudeModel: e.target.value })}
                             label={t('model')}
                         >
-                            {models.map((model) => (
+                            {settingsEdit.claudeModels.map((model) => (
                                 <MenuItem key={model} value={model}>
                                     {model}
                                 </MenuItem>

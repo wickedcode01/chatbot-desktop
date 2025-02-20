@@ -11,13 +11,7 @@ import { createAnthropic } from "@ai-sdk/anthropic"
 import { streamText, CoreMessage } from 'ai'
 
 import { z } from 'zod'
-export const claudeModelConfigs = {
-    'claude-3-5-haiku-latest': { maxTokens: 8192 },
-    'claude-3-5-sonnet-latest': { maxTokens: 8192 },
-} as const
 
-export type Model = keyof typeof claudeModelConfigs
-export const models = Object.keys(claudeModelConfigs).sort() as Model[]
 
 export default class Claude extends Base {
     private client

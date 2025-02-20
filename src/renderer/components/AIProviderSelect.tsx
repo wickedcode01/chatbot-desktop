@@ -1,4 +1,4 @@
-import { Chip, MenuItem, Typography } from '@mui/material'
+import { MenuItem, Typography } from '@mui/material'
 import { ModelProvider, ModelSettings } from '../../config/types'
 import { useTranslation } from 'react-i18next'
 import { AIModelProviderMenuOptionList } from '../packages/models'
@@ -16,7 +16,7 @@ interface ModelConfigProps {
 }
 
 export default function AIProviderSelect(props: ModelConfigProps) {
-    const { settings, setSettings, className, hideCustomProviderManage } = props
+    const { settings, setSettings} = props
     const { t } = useTranslation()
 
     const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -67,15 +67,6 @@ export default function AIProviderSelect(props: ModelConfigProps) {
                         >
                             <StarIcon />
                             {provider.label}
-                            {provider.featured && (
-                                <Chip
-                                    label={t('Easy Access')}
-                                    size="small"
-                                    color="success"
-                                    variant="outlined"
-                                    sx={{ marginLeft: '10px' }}
-                                />
-                            )}
                         </MenuItem>
                     ))}
                 </StyledMenu>

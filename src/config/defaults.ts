@@ -41,6 +41,9 @@ export function settings(): Settings {
 
         autoGenerateTitle: true,
         searchSwitch: false,
+        // Add default model lists
+        claudeModels: ['claude-3-5-haiku-latest','claude-3-5-sonnet-latest'],
+        openrouterModels: ['deepseek/deepseek-r1:free', 'google/gemini-2.0-flash-exp:free', 'google/gemini-2.0-pro-exp-02-05:free'],
     }
 }
 

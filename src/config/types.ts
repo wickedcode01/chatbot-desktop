@@ -84,6 +84,8 @@ export interface ModelSettings {
     temperature: number
     topP: number
     openaiMaxContextMessageCount: number
+    claudeModels:string[]
+    openrouterModels:string[]
 }
 
 export interface Settings extends ModelSettings {

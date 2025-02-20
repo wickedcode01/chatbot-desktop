@@ -173,10 +173,3 @@ export default class OpenRouter extends Base {
         }
     }
 }
-
-// Available models from OpenRouter
-export const ModelConfigs = {
-    'cognitivecomputations/dolphin3.0-r1-mistral-24b:free': { maxTokens: 33000 },
-    'google/gemini-2.0-pro-exp-02-05:free': { maxTokens: 2000000 },
-}
-export const models = Object.keys(ModelConfigs).sort()

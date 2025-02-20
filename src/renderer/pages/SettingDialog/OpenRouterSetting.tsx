@@ -6,7 +6,7 @@ import TemperatureSlider from '../../components/TemperatureSlider'
 import PasswordTextField from '../../components/PasswordTextField'
 import TextFieldReset from '@/components/TextFieldReset'
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
-import { models } from '../../packages/models/openrouter'
+import ModelManagement from '@/components/ModelManagement'
 import MaxContextMessageCountSlider from '../../components/MaxContextMessageCountSlider'
 interface ModelConfigProps {
     settingsEdit: ModelSettings
@@ -33,7 +33,9 @@ export default function ClaudeSetting({ settingsEdit, setSettingsEdit }: ModelCo
                         {t('model')} & {t('parameters')}
                     </Typography>
                 </AccordionSummary>
+
                 <AccordionDetails>
+                    <ModelManagement modelKey="openrouterModels" settingsEdit={settingsEdit} setSettingsEdit={setSettingsEdit} />
                     <FormControl fullWidth variant="outlined" margin="dense">
                         <InputLabel>{t('model')}</InputLabel>
                         <Select
@@ -41,7 +43,7 @@ export default function ClaudeSetting({ settingsEdit, setSettingsEdit }: ModelCo
                             onChange={(e) => setSettingsEdit({ ...settingsEdit, openrouterModel: e.target.value })}
                             label={t('model')}
                         >
-                            {models.map((model) => (
+                            {settingsEdit.openrouterModels.map((model) => (
                                 <MenuItem key={model} value={model}>
                                     {model}
                                 </MenuItem>
