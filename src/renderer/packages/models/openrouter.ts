@@ -166,7 +166,8 @@ export default class OpenRouter extends Base {
             if (err instanceof Error) {
                 throw new ApiError('OpenRouter API Error: ' + err.message)
             } else if (err.error) {
-                throw new ApiError(`statusCode: ${err.error.statusCode} ${err.error.message}`)
+                err = err.error
+                throw new ApiError(`statusCode: ${err.statusCode} message: ${err.message || err.responseBody}`)
             } else {
                 throw new BaseError('Unknown Error' + JSON.stringify(err))
             }
