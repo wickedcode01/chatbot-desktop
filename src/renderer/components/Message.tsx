@@ -28,6 +28,7 @@ import { estimateTokensFromMessages } from '@/packages/token'
 import { countWord } from '@/packages/word-count'
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import SearchResult from './SearchResult'
 
 export interface Props {
     id?: string
@@ -117,7 +118,6 @@ export default function Message(props: Props) {
 
         tips.push('time: ' + messageTimestamp)
     }
-
     useEffect(() => {
         if (msg.generating) {
             scrollActions.scrollToBottom()
@@ -262,7 +262,6 @@ export default function Message(props: Props) {
                             )}
                         </Box>
                         <MessageErrTips msg={msg} />
-                        <Typography variant="body2" sx={{ opacity: 0.5 }}></Typography>
                         {needCollapse && !isCollapsed && CollapseButton}
                         <Typography variant="body2" sx={{ opacity: 0.5, paddingBottom: '2rem' }}>
                             {tips.join(', ')}
@@ -270,16 +269,20 @@ export default function Message(props: Props) {
                                 <DeleteForeverIcon sx={{ fontSize: '1rem' }} />
                             </IconButton>
                         </Typography>
+                        {/* Add SearchResult component */}
+                        {msg.searchResults?.raw && (
+                            <SearchResult results={msg.searchResults.raw} />
+                        )}
                     </Grid>
                 </Grid>
             </Grid>
-        
-                <Lightbox
-                open={isImageOpen }
-                slides={[{ src: selectedImage?.base64Data ||'' }, ]}
+
+            <Lightbox
+                open={isImageOpen}
+                slides={[{ src: selectedImage?.base64Data || '' },]}
                 close={handleCloseImage}
-                />
-      
+            />
+
         </Box>
     )
 }

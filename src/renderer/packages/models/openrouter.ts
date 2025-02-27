@@ -9,6 +9,7 @@ import { getDefaultStore } from 'jotai'
 import * as defaults from '../../../config/defaults'
 import * as settingActions from '@/stores/settingActions'
 import { searchPrompt } from '@/packages/prompts'
+import * as sessionActions from '@/stores/sessionActions'
 import { z } from 'zod'
 
 interface Options {
@@ -24,6 +25,7 @@ export default class OpenRouter extends Base {
     public options: Options
     private defaultPrompt: string
     private tool_list = {}
+    private message: Message | undefined
     private maxToolCallCounts: number = 3
 
     constructor(options: Options) {
@@ -32,10 +34,8 @@ export default class OpenRouter extends Base {
         this.client = createOpenRouter({
             apiKey: options.openrouterKey,
         })
-
         const store = getDefaultStore()
         this.defaultPrompt = store.get(atoms.settingsAtom).defaultPrompt || defaults.getDefaultPrompt()
-
         const searchTag = settingActions.getSearchSwitch()
         if (searchTag) {
             this.tool_list = {
@@ -62,7 +62,12 @@ export default class OpenRouter extends Base {
                             .describe('List of domains to exclude in the search')
                     }),
                     execute: async (args: any) => {
-                        const result = await performSearch(args)
+                        const result: object[] = await performSearch(args)
+                        const id = sessionActions.getCurrentSessionId();
+                        if (this.message) {
+                            const currentMessage: Message = this.message;
+                            sessionActions.modifyMessage(id, { ...currentMessage, searchResults: { raw: result } })
+                        }
                         return JSON.stringify(result)
                     }
                 },
@@ -84,11 +89,12 @@ export default class OpenRouter extends Base {
 
     async callChatCompletion(
         messages: Message[],
+        newMessage: Message,
         signal?: AbortSignal,
         onResultChange?: onResultChange
     ): Promise<string> {
         try {
-
+            this.message = newMessage
             // Process messages to handle attachments in the correct format
             const processedMessages = messages.map(msg => {
                 if (msg.attachments && msg.attachments.length > 0) {
@@ -150,7 +156,14 @@ export default class OpenRouter extends Base {
                 topP: this.options.topP,
                 tools: Object.keys(this.tool_list).length > 0 ? this.tool_list : undefined,
                 maxSteps: this.maxToolCallCounts,
-                onError: (err) => { throw err }
+                onError: (err) => { throw err },
+                onStepFinish({ text, toolCalls, toolResults, finishReason, usage }) {
+                    if (toolResults) {
+                        toolResults.forEach(result => {
+                            // console.log(result)
+                        })
+                    }
+                },
             })
 
             let result = ''

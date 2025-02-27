@@ -32,6 +32,11 @@ export interface Message {
     tokenCount?: number
     tokensUsed?: number
     timestamp?: number
+
+    // Add new fields for search results
+    searchResults?: {
+        raw: object[]  // Store raw search result
+    }
 }
 
 export type SettingWindowTab = 'ai' | 'display' | 'chat' | 'advanced'

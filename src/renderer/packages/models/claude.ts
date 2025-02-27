@@ -83,6 +83,7 @@ export default class Claude extends Base {
 
     async callChatCompletion(
         messages: Message[],
+        newMessage?: Message,
         signal?: AbortSignal,
         onResultChange?: onResultChange
     ): Promise<string> {

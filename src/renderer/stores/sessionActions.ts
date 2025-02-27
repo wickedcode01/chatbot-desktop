@@ -126,7 +126,7 @@ export function modifyMessage(sessionId: string, updated: Message, refreshCounti
         return msgs.map((m) => {
             if (m.id === updated.id) {
                 hasHandled = true
-                return { ...updated }
+                return { ...m,...updated }
             }
             return m
         })
@@ -198,7 +198,7 @@ export async function generate(sessionId: string, targetMsg: Message) {
                     modifyMessage(sessionId, targetMsg)
                 }, 100)
                 // the return value of chat seems useless
-                await model.chat(promptMsgs, throttledModifyMessage)
+                await model.chat(promptMsgs,targetMsg,throttledModifyMessage)
 
                 targetMsg = {
                     ...targetMsg,
@@ -338,6 +338,16 @@ export function getCurrentSession() {
 export function getCurrentMessages() {
     const store = getDefaultStore()
     return store.get(atoms.currentMessageListAtom)
+}
+
+export function getCurrentSessionId() {
+    const store = getDefaultStore()
+    return store.get(atoms.currentSessionIdAtom)
+}
+
+export function getMessageById(id:string){
+    const store = getDefaultStore()
+    return store.get(atoms.currentMessageListAtom).find(i=>i.id=id)
 }
 
 // export function deleteMessageinCurrentSession(id: string) {
