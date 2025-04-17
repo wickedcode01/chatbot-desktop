@@ -24,6 +24,8 @@ export default function MiniSelect() {
                 return settings.claudeModels;
             case ModelProvider.OpenRouter:
                 return settings.openrouterModels;
+            case ModelProvider.OpenAI:
+                return settings.openaiModels;
             default:
                 return [];
         }

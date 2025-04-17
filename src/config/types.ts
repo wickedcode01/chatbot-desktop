@@ -68,7 +68,8 @@ export function createMessage(role: MessageRole = MessageRoleEnum.User, content:
 
 export enum ModelProvider {
     Claude = 'claude',
-    OpenRouter = 'openrouter'
+    OpenRouter = 'openrouter',
+    OpenAI = 'openai'
 }
 
 export interface ModelSettings {
@@ -85,12 +86,17 @@ export interface ModelSettings {
     // openrouter
     openrouterKey: string
     openrouterModel: string
+    // openai settings
+    openaiApiKey: string
+    openaiApiHost?: string
+    openaiModel: string
     // general config
     temperature: number
     topP: number
     openaiMaxContextMessageCount: number
-    claudeModels:string[]
-    openrouterModels:string[]
+    claudeModels: string[]
+    openrouterModels: string[]
+    openaiModels: string[]
 }
 
 export interface Settings extends ModelSettings {

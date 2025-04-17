@@ -3,8 +3,8 @@ import { ModelProvider, ModelSettings } from '../../../config/types'
 
 import AIProviderSelect from '../../components/AIProviderSelect'
 import ClaudeSetting from './ClaudeSetting'
-
 import OpenRouterSetting from './OpenRouterSetting'
+import OpenAISetting from './OpenAISetting'
 
 interface ModelConfigProps {
     settingsEdit: ModelSettings
@@ -22,6 +22,9 @@ export default function ModelSettingTab(props: ModelConfigProps) {
             )}
             {settingsEdit.aiProvider === ModelProvider.OpenRouter && (
                 <OpenRouterSetting settingsEdit={settingsEdit} setSettingsEdit={setSettingsEdit} />
+            )}
+            {settingsEdit.aiProvider === ModelProvider.OpenAI && (
+                <OpenAISetting settingsEdit={settingsEdit} setSettingsEdit={setSettingsEdit} />
             )}
         </Box>
     )

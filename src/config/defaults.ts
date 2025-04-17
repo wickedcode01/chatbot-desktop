@@ -11,6 +11,8 @@ export function settings(): Settings {
         claudeModel: '',
         openrouterKey: '',
         openrouterModel: '',
+        openaiApiKey: '',
+        openaiModel: '',
         exaAPIKey: '',
         model: '',
         temperature: 0.7,
@@ -44,6 +46,7 @@ export function settings(): Settings {
         // Add default model lists
         claudeModels: ['claude-3-5-haiku-latest','claude-3-5-sonnet-latest'],
         openrouterModels: ['deepseek/deepseek-r1:free', 'google/gemini-2.0-flash-exp:free', 'google/gemini-2.0-pro-exp-02-05:free'],
+        openaiModels: ['gpt-4.1-2025-04-14', 'gpt-4o-mini-2024-07-18', 'gpt-4.1-mini-2025-04-14'],
     }
 }
 

@@ -6,7 +6,7 @@ import { ModelSettings } from '@/../config/types'
 import { useState, useCallback} from 'react';
 
 interface ModelManagementProps {
-    modelKey: 'claudeModels' | 'openrouterModels';
+    modelKey: 'claudeModels' | 'openrouterModels' | 'openaiModels';
     settingsEdit: ModelSettings
     setSettingsEdit: (settings: ModelSettings) => void
 }
@@ -15,7 +15,6 @@ export default function ModelManagement({ modelKey, settingsEdit, setSettingsEdi
     const { t } = useTranslation();
 
     const [newModel, setNewModel] = useState('');
-
 
     const handleAddModel = () => {
         if (!newModel.trim()) return;
