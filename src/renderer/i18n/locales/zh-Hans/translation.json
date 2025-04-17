@@ -2,5 +2,18 @@
     "Copy": "复制",
     "Paste": "粘贴",
     "Cut": "剪切",
-    "Available Models": "可选模型"
+    "Available Models": "可选模型",
+    "new chat": "新建对话",
+    "settings": "设置",
+    "About":"关于",
+    "Model Provider":"模型提供商",
+    "api key":"api 密钥",
+    "api host":"api 域名",
+    "model":"模型",
+    "temperature":"温度",
+    "top_p":"采样范围",
+    "top_k":"采样范围",
+    "parameters":"参数",
+    "system prompt":"系统提示",
+    "Max Message Count in Context":"上下文最大消息数"
 }
