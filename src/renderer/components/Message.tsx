@@ -96,10 +96,6 @@ export default function Message(props: Props) {
             }
             tips.push(`token count: ${msg.tokenCount}`)
         }
-        // meaningless
-        // if (showTokenUsed && msg.role === 'assistant' && !msg.generating) {
-        //     tips.push(`tokens used: ${msg.tokenUsed || 'unknown'}`)
-        // }
         if (showModelName && props.msg.role === 'assistant') {
             tips.push(`model: ${props.msg.model || 'unknown'}`)
         }
@@ -268,11 +264,12 @@ export default function Message(props: Props) {
                             <IconButton aria-label="delete" onClick={handleDeleteMessage}>
                                 <DeleteForeverIcon sx={{ fontSize: '1rem' }} />
                             </IconButton>
+                            {/* Add SearchResult component */}
+                            {msg.searchResults?.raw && (
+                                <SearchResult results={msg.searchResults.raw} />
+                            )}
                         </Typography>
-                        {/* Add SearchResult component */}
-                        {msg.searchResults?.raw && (
-                            <SearchResult results={msg.searchResults.raw} />
-                        )}
+
                     </Grid>
                 </Grid>
             </Grid>
