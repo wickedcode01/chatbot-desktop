@@ -8,9 +8,16 @@ import {
 } from './errors'
 import { createParser } from 'eventsource-parser'
 import _ from 'lodash'
+import { CoreMessage } from 'ai'
+import { z } from 'zod'
+import { performSearch, browse } from '../tools/index'
+import * as sessionActions from '@/stores/sessionActions'
 
 export default class Base {
     public name = 'Unknown'
+    protected tool_list: Record<string, any> = {}
+    protected maxToolCallCounts: number = 3
+    protected currentMessage?: Message
 
     constructor() {}
 
@@ -19,9 +26,98 @@ export default class Base {
         newMessage?: Message,
         signal?: AbortSignal,
         onResultChange?: onResultChange,
-
     ): Promise<string> {
         throw new AIProviderNoImplementedChatError(this.name)
+    }
+
+    protected processMessages(messages: Message[]): CoreMessage[] {
+        return messages.map(msg => {
+            if (msg.attachments && msg.attachments.length > 0) {
+                const content = []
+
+                // Add text content if exists
+                if (msg.content) {
+                    content.push({ type: 'text', text: msg.content })
+                }
+
+                // Add attachments
+                msg.attachments.forEach(attachment => {
+                    if (attachment.type === 'image') {
+                        content.push({
+                            type: 'image',
+                            image: attachment.base64Data,
+                        })
+                    } else if (attachment.type === 'file' && attachment.media_type == 'application/pdf') {
+                        content.push({
+                            type: 'file',
+                            mimeType: 'application/pdf',
+                            data: attachment.base64Data
+                        })
+                    } else {
+                        // For other files, append as text
+                        content.push({
+                            type: 'text',
+                            text: `[File: ${attachment.name}]\n${attachment.base64Data}`
+                        })
+                    }
+                })
+
+                return {
+                    ...msg,
+                    content
+                }
+            }
+            return msg
+        }) as CoreMessage[]
+    }
+
+    protected setupTools() {
+        this.tool_list = {
+            search: {
+                description: 'Search the internet for current information.',
+                parameters: z.object({
+                    query: z.string().describe('The search query'),
+                    category: z.enum([
+                        'company',
+                        'research paper',
+                        'news article',
+                        'linkedin profile',
+                        'github',
+                        'tweet',
+                        'movie',
+                        'song',
+                        'personal site',
+                        'pdf',
+                        'financial report'
+                    ]).optional().describe('A data category to focus on'),
+                    includeDomains: z.array(z.string()).optional()
+                        .describe('List of domains to include in the search'),
+                    excludeDomains: z.array(z.string()).optional()
+                        .describe('List of domains to exclude in the search')
+                }),
+                execute: async (args: any) => {
+                    const result = await performSearch(args)
+                    const id = sessionActions.getCurrentSessionId();
+                    if (this.currentMessage) {
+                        const currentMessage: Message = this.currentMessage;
+                        sessionActions.modifyMessage(id, { ...currentMessage, searchResults: { raw: result } })
+                    }
+                    return JSON.stringify(result)
+                }
+            },
+            browse: {
+                description: 'Browse webpage content by URL',
+                parameters: z.object({
+                    urls: z.array(z.string()).describe('Array of URLs to browse'),
+                    includeHtmlTags: z.boolean().optional()
+                        .describe('Whether to return HTML tags')
+                }),
+                execute: async (args: any) => {
+                    const result = await browse(args.urls, args)
+                    return JSON.stringify(result)
+                }
+            }
+        }
     }
 
     async chat(
