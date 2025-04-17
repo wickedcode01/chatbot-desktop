@@ -264,7 +264,7 @@ export default function Message(props: Props) {
                             <IconButton aria-label="delete" onClick={handleDeleteMessage}>
                                 <DeleteForeverIcon sx={{ fontSize: '1rem' }} />
                             </IconButton>
-                            {/* Add SearchResult component */}
+                            <br/>
                             {msg.searchResults?.raw && (
                                 <SearchResult results={msg.searchResults.raw} />
                             )}
