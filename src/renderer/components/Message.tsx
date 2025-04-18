@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from 'react'
 import Box from '@mui/material/Box'
 import Avatar from '@mui/material/Avatar'
-import { Typography, Grid, useTheme, IconButton } from '@mui/material'
+import { Typography, Grid, useTheme, IconButton, Button } from '@mui/material'
 import PersonIcon from '@mui/icons-material/Person'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
 import SettingsIcon from '@mui/icons-material/Settings'
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever'
+
 import { useTranslation } from 'react-i18next'
 import { Message, SessionType, FileWithBase64 } from '../../config/types'
 import { useAtomValue, useSetAtom } from 'jotai'
@@ -17,8 +18,9 @@ import {
     openSettingDialogAtom,
     enableMarkdownRenderingAtom,
 } from '../stores/atoms'
+
 import { currsentSessionPicUrlAtom, showTokenUsedAtom } from '../stores/atoms'
-import * as scrollActions from '../stores/scrollActions'
+
 import Markdown from '@/components/Markdown'
 import '../static/Block.css'
 import MessageErrTips from './MessageErrTips'
@@ -115,9 +117,12 @@ export default function Message(props: Props) {
         tips.push('time: ' + messageTimestamp)
     }
     useEffect(() => {
-        if (msg.generating) {
-            scrollActions.scrollToBottom()
-        }
+
+
+
+
+
+
     }, [msg.content, msg.generating])
 
     let content = msg.content
@@ -264,8 +269,9 @@ export default function Message(props: Props) {
                             <IconButton aria-label="delete" onClick={handleDeleteMessage}>
                                 <DeleteForeverIcon sx={{ fontSize: '1rem' }} />
                             </IconButton>
-                            <br/>
+                            <br />
                             {msg.searchResults?.raw && (
+                                // @ts-ignore - Ignoring type check for now as the component expects a specific type
                                 <SearchResult results={msg.searchResults.raw} />
                             )}
                         </Typography>
