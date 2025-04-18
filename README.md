@@ -22,6 +22,8 @@ A modern desktop application for LLM chatbots with advanced features including o
 
 - **User Experience** 🎯
   - Resizable textarea
+  - Light/Dark theme 
+  - Multilingual support
   - Customizable system prompts
   - Model provider switching
   - API key management
@@ -63,10 +65,13 @@ A modern desktop application for LLM chatbots with advanced features including o
 ![Search API Configuration](./screenshots/Screenshot%202025-04-17%20174941.png)
 
 ### Online Search Feature
-![Online Search](./screenshots/Screenshot%202025-04-17%20175108.png)
+![Online Search](./screenshots/Screenshot%202025-04-17%20230030.png)
 
 ### Search Results Review
 ![Search Results](./screenshots/Screenshot%202025-04-17%20175113.png)
+
+### Image Support
+![Image Support](./screenshots/Screenshot%202025-04-17%20230341.png)
 
 ### Conversation Settings
 ![Conversation Settings](./screenshots/Screenshot%202025-04-17%20174756.png)
