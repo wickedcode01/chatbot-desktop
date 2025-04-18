@@ -2,7 +2,7 @@
     "name": "chatbot-desktop",
     "productName": "chatbot-desktop",
     "version": "0.0.1",
-    "description": "A desktop application for claude.ai API",
+    "description": "A desktop application for AI chatbots",
     "main": "./src/main/main.ts",
     "scripts": {
         "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
