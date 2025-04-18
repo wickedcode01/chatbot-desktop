@@ -73,6 +73,9 @@ A modern desktop application for LLM chatbots with advanced features including o
 ### Image Support
 ![Image Support](./screenshots/Screenshot%202025-04-17%20230341.png)
 
+### PDF Support
+![Image Support](./screenshots/Screenshot%202025-04-17%20232206.png)
+
 ### Conversation Settings
 ![Conversation Settings](./screenshots/Screenshot%202025-04-17%20174756.png)
 
