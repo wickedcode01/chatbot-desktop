@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Message from './Message'
 import * as atoms from '../stores/atoms'
 import { useAtom, useAtomValue } from 'jotai'
-import { debounce } from 'lodash'
+import { throttle } from 'lodash'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import { Button, Box, useTheme } from '@mui/material'
 import * as scrollActions from '../stores/scrollActions'
@@ -32,7 +32,7 @@ export default function MessageList(props: Props) {
         scrollActions.scrollToBottom(true, 'smooth');
     };
 
-    const handleScroll = debounce(() => {
+    const handleScroll = throttle(() => {
         // Check if user is not at the bottom
         const checkScrollPosition = (messageListRef: React.MutableRefObject<HTMLDivElement | null>) => {
             if (messageListRef && messageListRef.current) {
@@ -41,7 +41,7 @@ export default function MessageList(props: Props) {
                 const clientHeight = messageListRef.current.clientHeight;
                 const bottomOffset = scrollHeight - scrollTop - clientHeight;
                 // If not at the bottom, show the scroll button
-                setShowScrollButton(bottomOffset > 200);
+                setShowScrollButton(bottomOffset > 100);
             }
         };
         if (ref.current) {
@@ -50,6 +50,10 @@ export default function MessageList(props: Props) {
             checkScrollPosition(ref)
         }
     }, 500)
+
+    useEffect(() => {
+        handleScroll();
+    }, [currentMessageList]);
 
     return (
         <div className='overflow-y-auto w-full h-full relative'>

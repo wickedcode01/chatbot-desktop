@@ -119,10 +119,6 @@ export default function Message(props: Props) {
     useEffect(() => {
 
 
-
-
-
-
     }, [msg.content, msg.generating])
 
     let content = msg.content
