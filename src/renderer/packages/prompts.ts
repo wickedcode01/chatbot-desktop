@@ -6,23 +6,21 @@ export function nameConversation(msgs: Message[], language: string): Message[] {
         {
             id: '1',
             role: 'user',
-            content: `Based on the chat history, give this conversation a name.
-Keep it short - 10 characters max, no quotes.
+            content: `Based on the chat history, give this conversation a title.
+Keep it short - 10 words max, no quotes.
 Use ${language}.
-Just provide the name, nothing else.
+Just provide the title, nothing else.
 
 Here's the conversation:
 
 \`\`\`
-${format(msgs.slice(0, 5).map((msg) => msg.content.slice(0, 100))) // save tokens
-                }
+${format(msgs.slice(0, 5).map((msg) => msg.content.slice(0, 100)))}
 \`\`\`
 
-Name this conversation in 10 characters or less.
+Name this conversation in 10 words or less.
 Use ${language}.
-Only give the name, nothing else.
-
-The name is:`,
+Only give the title, nothing else.
+The title is:`,
         },
     ]
 }

@@ -262,7 +262,7 @@ async function _generateName(sessionId: string, modifyName: (sessionId: string, 
             )
         )
         name = name.replace(/['"“”]/g, '')
-        name = name.slice(0, 10)
+        // name = name.slice(0, 50)
         modifyName(session.id, name)
     } catch (e: any) {
         if (!(e instanceof ApiError || e instanceof NetworkError)) {

@@ -10,7 +10,6 @@ import { clsx } from 'clsx'
 import icon from '../static/icon.png'
 import MiniButton from './MiniButton'
 import MiniSelect from './MiniSelect';
-import _ from 'lodash'
 import { isImageFile, convertToBase64 } from '@/util'
 
 

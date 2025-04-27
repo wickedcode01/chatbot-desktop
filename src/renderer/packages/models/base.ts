@@ -7,7 +7,6 @@ import {
     AIProviderNoImplementedChatError,
 } from './errors'
 import { createParser } from 'eventsource-parser'
-import _ from 'lodash'
 import { CoreMessage } from 'ai'
 import { z } from 'zod'
 import { performSearch, browse } from '../tools/index'

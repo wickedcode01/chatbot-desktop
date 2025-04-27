@@ -172,7 +172,7 @@
     "browserslist": [],
     "build": {
         "productName": "Chatbot desktop",
-        "appId": "",
+        "appId": "com.electron.chatbot-desktop",
         "asar": true,
         "asarUnpack": "**\\*.{node,dll}",
         "files": [
