@@ -17,8 +17,6 @@ import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 import { store, getConfig, getSettings } from './store-node'
 import * as proxy from './proxy'
-import * as fs from 'fs-extra'
-import sanitizeFilename from 'sanitize-filename'
 
 if (process.platform === 'win32') {
     app.setAppUserModelId(app.name)
@@ -145,13 +143,16 @@ app.whenReady()
 // IPC
 
 ipcMain.handle('getStoreValue', (event, key) => {
+    console.log('getStoreValue', key)
     return store.get(key)
 })
 ipcMain.handle('setStoreValue', (event, key, dataJson) => {
     const data = JSON.parse(dataJson)
+    console.log('setStoreValue', key)
     return store.set(key, data)
 })
 ipcMain.handle('delStoreValue', (event, key) => {
+    console.log('delStoreValue', key)
     return store.delete(key)
 })
 ipcMain.handle('getAllStoreValues', (event) => {

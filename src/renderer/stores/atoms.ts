@@ -1,6 +1,6 @@
 import { atom, SetStateAction } from 'jotai'
 import { Session, Toast, Settings, CopilotDetail, Message, SettingWindowTab } from '../../config/types'
-import { selectAtom, atomWithStorage } from 'jotai/utils'
+import { selectAtom, atomWithStorage, atomFamily } from 'jotai/utils'
 import { focusAtom } from 'jotai-optics'
 import * as defaults from '../../config/defaults'
 import storage, { StorageKey } from '../storage'
@@ -42,28 +42,26 @@ export const myCopilotsAtom = atomWithStorage<CopilotDetail[]>(StorageKey.MyCopi
 
 // sessions
 
-const _sessionsAtom = atomWithStorage<Session[]>(StorageKey.ChatSessions, [], storage)
-export const sessionsAtom = atom(
+const _sessionsMetaAtom = atomWithStorage<Session[]>(StorageKey.ChatSessions, [], storage)
+export const sessionsMetaAtom = atom(
     (get) => {
-        let sessions = get(_sessionsAtom)
+        let sessions = get(_sessionsMetaAtom)
         if (sessions.length === 0) {
             sessions = defaults.sessions()
         }
         return sessions
     },
     (get, set, update: SetStateAction<Session[]>) => {
-        const sessions = get(_sessionsAtom)
+        const sessions = get(_sessionsMetaAtom)
         let newSessions = typeof update === 'function' ? update(sessions) : update
         if (newSessions.length === 0) {
             newSessions = defaults.sessions()
         }
-        set(_sessionsAtom, newSessions)
+        set(_sessionsMetaAtom, newSessions)
     }
 )
-export const sortedSessionsAtom = atom((get) => {
-    return sortSessions(get(sessionsAtom))
-})
 
+// 添加排序功能
 export function sortSessions(sessions: Session[]): Session[] {
     return [...sessions].reverse().sort((a, b) => {
         // 先比较是否置顶
@@ -74,11 +72,21 @@ export function sortSessions(sessions: Session[]): Session[] {
     })
 }
 
+export const sortedSessionsAtom = atom((get) => {
+    return sortSessions(get(sessionsMetaAtom))
+})
+
+// 会话消息
+export const sessionMessagesAtomFamily = atomFamily((sessionId: string) => 
+    atomWithStorage<Message[]>(`messages-${sessionId}`, [], storage)
+)
+
+// 当前会话
 const _currentSessionIdCachedAtom = atomWithStorage<string | null>('_currentSessionIdCachedAtom', null)
 export const currentSessionIdAtom = atom(
     (get) => {
         const idCached = get(_currentSessionIdCachedAtom)
-        const sessions = get(sortedSessionsAtom)
+        const sessions = get(sessionsMetaAtom)
         if (idCached && sessions.some((session) => session.id === idCached)) {
             return idCached
         }
@@ -89,37 +97,33 @@ export const currentSessionIdAtom = atom(
     }
 )
 
+// 修改currentSessionAtom以使用新的结构
 export const currentSessionAtom = atom((get) => {
     const id = get(currentSessionIdAtom)
-    const sessions = get(sessionsAtom)
+    const sessions = get(sessionsMetaAtom)
+    const messages = get(sessionMessagesAtomFamily(id))
     let current = sessions.find((session) => session.id === id)
     if (!current) {
-        return sessions[sessions.length - 1] // fallback to the last session
+        current = sessions[sessions.length - 1] // fallback to the last session
     }
-    return current
+    return {
+        ...current,
+        messages
+    }
 })
 
 export const currentSessionNameAtom = selectAtom(currentSessionAtom, (s) => s.name)
 export const currsentSessionPicUrlAtom = selectAtom(currentSessionAtom, (s) => s.picUrl)
 
+// 修改currentMessageListAtom以使用新的结构
 export const currentMessageListAtom = atom(
     (get) => {
         const session = get(currentSessionAtom)
         return session.messages
     },
     (get, set, newMessages: Message[]) => {
-        const sessions = get(sessionsAtom)
-        const currentSession = get(currentSessionAtom)
-        currentSession.messages = newMessages
-        const updatedSession = { ...currentSession, messages: newMessages } // 创建一个新的会话对象
-        const newSessions = sessions.map((i) => {
-            if (i.id === currentSession.id) {
-                return updatedSession // 使用更新后的会话对象
-            } else {
-                return i
-            }
-        })
-        set(sessionsAtom, newSessions)
+        const currentSessionId = get(currentSessionIdAtom)
+        set(sessionMessagesAtomFamily(currentSessionId), newMessages)
     }
 )
 

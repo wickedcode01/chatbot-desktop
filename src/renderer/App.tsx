@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { getDefaultStore } from 'jotai'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ThemeProvider } from '@mui/material/styles'
 import { Box, Grid } from '@mui/material'
@@ -17,6 +18,25 @@ import { useAtom, useAtomValue } from 'jotai'
 import * as atoms from './stores/atoms'
 import Sidebar from './Sidebar'
 
+// --- MIGRATION LOGIC ---
+function migrateSessionsMessages() {
+  const store = getDefaultStore();
+  const sessions = store.get(atoms.sessionsMetaAtom);
+  let needUpdate = false;
+  const newSessions = sessions.map(session => {
+    if (Array.isArray(session.messages) && session.messages.length > 0) {
+        console.log('migrating session messages for', session.id);
+      store.set(atoms.sessionMessagesAtomFamily(session.id), session.messages);
+      needUpdate = true;
+    }
+    // 最终都返回带空 messages 字段的 session
+    const { messages, ...meta } = session;
+    return { ...meta, messages: [] };
+  });
+  if (needUpdate) {
+    store.set(atoms.sessionsMetaAtom, newSessions);
+  }
+}
 
 function Main() {
     const spellCheck = useAtomValue(atoms.spellCheckAtom)
@@ -55,6 +75,9 @@ export default function App() {
 
     useSystemLanguageWhenInit()
     const theme = useAppTheme()
+    useEffect(() => {
+      migrateSessionsMessages();
+    }, []);
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />

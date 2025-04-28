@@ -14,20 +14,20 @@ import {
     BaseError,
 } from '@/packages/models/errors'
 import platform from '../packages/platform'
-import { throttle } from 'lodash'
-import { countWord } from '@/packages/word-count'
 import { estimateTokensFromMessages } from '@/packages/token'
 import * as settingActions from './settingActions'
+import storage from '../storage'
 
 export function create(newSession: Session) {
     const store = getDefaultStore()
-    store.set(atoms.sessionsAtom, (sessions) => [...sessions, newSession])
+    store.set(atoms.sessionsMetaAtom, (sessions) => [...sessions, newSession])
+    store.set(atoms.sessionMessagesAtomFamily(newSession.id), [])
     switchCurrentSession(newSession.id)
 }
 
 export function modify(update: Session) {
     const store = getDefaultStore()
-    store.set(atoms.sessionsAtom, (sessions) =>
+    store.set(atoms.sessionsMetaAtom, (sessions) =>
         sessions.map((s) => {
             if (s.id === update.id) {
                 return update
@@ -39,7 +39,7 @@ export function modify(update: Session) {
 
 export function modifyName(sessionId: string, name: string) {
     const store = getDefaultStore()
-    store.set(atoms.sessionsAtom, (sessions) =>
+    store.set(atoms.sessionsMetaAtom, (sessions) =>
         sessions.map((s) => {
             if (s.id === sessionId) {
                 return { ...s, name, threadName: name }
@@ -65,7 +65,9 @@ export function switchCurrentSession(sessionId: string) {
 
 export function remove(session: Session) {
     const store = getDefaultStore()
-    store.set(atoms.sessionsAtom, (sessions) => sessions.filter((s) => s.id !== session.id))
+    store.set(atoms.sessionsMetaAtom, (sessions) => sessions.filter((s) => s.id !== session.id))
+    // 彻底删除本地存储的messages key
+    storage.removeItem(`messages-${session.id}`)
 }
 
 export function clear(sessionId: string) {
@@ -73,17 +75,17 @@ export function clear(sessionId: string) {
     if (!session) {
         return
     }
-    modify({
-        ...session,
-        messages: session.messages.filter((m) => m.role === 'system'),
-    })
+    // 只保留系统消息
+    const systemMessages = session.messages.filter((m) => m.role === 'system')
+    const store = getDefaultStore()
+    store.set(atoms.sessionMessagesAtomFamily(sessionId), systemMessages)
 }
 
 export async function copy(source: Session) {
     const store = getDefaultStore()
     const newSession = { ...source }
     newSession.id = uuidv4()
-    store.set(atoms.sessionsAtom, (sessions) => {
+    store.set(atoms.sessionsMetaAtom, (sessions) => {
         let originIndex = sessions.findIndex((s) => s.id === source.id)
         if (originIndex < 0) {
             originIndex = 0
@@ -96,55 +98,20 @@ export async function copy(source: Session) {
 
 export function getSession(sessionId: string) {
     const store = getDefaultStore()
-    const sessions = store.get(atoms.sessionsAtom)
+    const sessions = store.get(atoms.sessionsMetaAtom)
     return sessions.find((s) => s.id === sessionId)
 }
 
 export function insertMessage(sessionId: string, msg: Message) {
     const store = getDefaultStore()
-    store.set(atoms.sessionsAtom, (sessions) =>
-        sessions.map((s) => {
-            if (s.id === sessionId) {
-                const newMessages = [...s.messages]
-                newMessages.push(msg)
-                return {
-                    ...s,
-                    messages: newMessages,
-                }
-            }
-            return s
-        })
-    )
+    store.set(atoms.sessionMessagesAtomFamily(sessionId), (messages) => [...messages, msg])
 }
-// 后续可以创建atom family,增加 messages atom,这样不用更新全部sessions
+
 export function modifyMessage(sessionId: string, updated: Message, refreshCounting?: boolean) {
     const store = getDefaultStore()
-    let hasHandled = false
-    const handle = (msgs: Message[]) => {
-        return msgs.map((m) => {
-            if (m.id === updated.id) {
-                hasHandled = true
-                return { ...m, ...updated }
-            }
-            return m
-        })
-    }
-    store.set(atoms.sessionsAtom, (sessions) => {
-        const sessionIndex = sessions.findIndex((s) => s.id === sessionId);
-        if (sessionIndex === -1) {
-            return sessions; // 没找到会话，不做任何更改
-        }
-        
-        // 创建新的会话数组，复用大部分原始引用
-        const newSessions = [...sessions];
-        // 更新特定会话，创建新对象
-        newSessions[sessionIndex] = {
-            ...sessions[sessionIndex],
-            messages: handle(sessions[sessionIndex].messages)
-        };
-        
-        return newSessions;
-    })
+    store.set(atoms.sessionMessagesAtomFamily(sessionId), (messages) => 
+        messages.map((m) => m.id === updated.id ? updated : m)
+    )
 }
 
 export async function submitNewUserMessage(params: {
@@ -189,7 +156,8 @@ export async function generate(sessionId: string, targetMsg: Message) {
     }
     modifyMessage(sessionId, targetMsg)
 
-    let messages = session.messages
+    // 始终用最新的消息 atom
+    let messages = store.get(atoms.sessionMessagesAtomFamily(sessionId))
     let targetMsgIx = messages.findIndex((m) => m.id === targetMsg.id)
 
     try {
@@ -268,9 +236,10 @@ async function _generateName(sessionId: string, modifyName: (sessionId: string, 
     const configs = await platform.getConfig()
     try {
         const model = getModel(settings, configs)
+        const messages = store.get(atoms.sessionMessagesAtomFamily(sessionId))
         let name = await model.chat(
             promptFormat.nameConversation(
-                session.messages.filter((m) => m.role !== 'system').slice(0, 4),
+                messages.slice(0, 4),
                 settings.language
             )
         )
@@ -335,7 +304,7 @@ export function initEmptyChatSession(): Session {
 
 export function getSessions() {
     const store = getDefaultStore()
-    return store.get(atoms.sessionsAtom)
+    return store.get(atoms.sessionsMetaAtom)
 }
 
 export function getSortedSessions() {

@@ -24,7 +24,8 @@ export interface Props {
 
 export default function SessionList(props: Props) {
     const sortedSessions = useAtomValue(atoms.sortedSessionsAtom)
-    const setSessions = useSetAtom(atoms.sessionsAtom)
+    const sessions = useAtomValue(atoms.sessionsMetaAtom)
+    const setSessions = useSetAtom(atoms.sessionsMetaAtom)
     const currentSessionId = useAtomValue(atoms.currentSessionIdAtom)
     const sensors = useSensors(
         useSensor(TouchSensor, {
@@ -49,10 +50,10 @@ export default function SessionList(props: Props) {
         const activeId = event.active.id
         const overId = event.over.id
         if (activeId !== overId) {
-            const oldIndex = sortedSessions.findIndex((s) => s.id === activeId)
-            const newIndex = sortedSessions.findIndex((s) => s.id === overId)
-            const newReversed = arrayMove(sortedSessions, oldIndex, newIndex)
-            setSessions(atoms.sortSessions(newReversed))
+            const oldIndex = sessions.findIndex((s) => s.id === activeId)
+            const newIndex = sessions.findIndex((s) => s.id === overId)
+            const newReversed = arrayMove(sessions, oldIndex, newIndex)
+            setSessions(newReversed)
         }
     }
     return (

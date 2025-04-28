@@ -38,6 +38,7 @@ export class DesktopPlatform {
         for (const key of keysToFlush) {
             const { value } = this.storeCache[key]
             const valueJson = JSON.stringify(value)
+            console.log('flushStoreCache', key, valueJson)
             await this.ipc.invoke('setStoreValue', key, valueJson)
             delete this.storeCache[key]
         }
