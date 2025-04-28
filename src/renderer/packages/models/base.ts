@@ -10,6 +10,7 @@ import { createParser } from 'eventsource-parser'
 import { CoreMessage } from 'ai'
 import { z } from 'zod'
 import { performSearch, browse } from '../tools/index'
+import {throttle} from 'lodash'
 import * as sessionActions from '@/stores/sessionActions'
 
 export default class Base {
@@ -150,6 +151,7 @@ export default class Base {
                     result = newResult
                     onResultUpdated({ text: result, cancel: stop })
                 }
+                onResultChange = throttle(onResultChange, 300)
             }
             result = await this.callChatCompletion(messages, newMessage, controller.signal, onResultChange)
         } catch (error) {

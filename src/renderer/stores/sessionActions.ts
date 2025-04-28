@@ -116,30 +116,35 @@ export function insertMessage(sessionId: string, msg: Message) {
         })
     )
 }
-
+// 后续可以创建atom family,增加 messages atom,这样不用更新全部sessions
 export function modifyMessage(sessionId: string, updated: Message, refreshCounting?: boolean) {
     const store = getDefaultStore()
-    // do we need to update timestamp here?
-    // updated.timestamp = new Date().getTime()
     let hasHandled = false
     const handle = (msgs: Message[]) => {
         return msgs.map((m) => {
             if (m.id === updated.id) {
                 hasHandled = true
-                return { ...m,...updated }
+                return { ...m, ...updated }
             }
             return m
         })
     }
-    store.set(atoms.sessionsAtom, (sessions) =>
-        sessions.map((s) => {
-            if (s.id !== sessionId) {
-                return s
-            }
-            s.messages = handle(s.messages)
-            return { ...s }
-        })
-    )
+    store.set(atoms.sessionsAtom, (sessions) => {
+        const sessionIndex = sessions.findIndex((s) => s.id === sessionId);
+        if (sessionIndex === -1) {
+            return sessions; // 没找到会话，不做任何更改
+        }
+        
+        // 创建新的会话数组，复用大部分原始引用
+        const newSessions = [...sessions];
+        // 更新特定会话，创建新对象
+        newSessions[sessionIndex] = {
+            ...sessions[sessionIndex],
+            messages: handle(sessions[sessionIndex].messages)
+        };
+        
+        return newSessions;
+    })
 }
 
 export async function submitNewUserMessage(params: {
@@ -193,12 +198,20 @@ export async function generate(sessionId: string, targetMsg: Message) {
             case 'chat':
             case undefined:
                 const promptMsgs = genMessageContext(settings, messages.slice(0, targetMsgIx))
-                const throttledModifyMessage = throttle(({ text, cancel }: { text: string; cancel: () => void }) => {
-                    targetMsg = { ...targetMsg, content: text, cancel }
-                    modifyMessage(sessionId, targetMsg)
-                }, 100)
-                // the return value of chat seems useless
-                await model.chat(promptMsgs,targetMsg,throttledModifyMessage)
+
+                // 减少对象创建和避免重复throttle
+                let contentCache = '';
+                const modifyMessageCallback = ({ text, cancel }: { text: string; cancel: () => void }) => {
+                    // 只有内容真正变化时才更新状态
+                    if (text !== contentCache) {
+                        contentCache = text;
+                        targetMsg = { ...targetMsg, content: text, cancel }
+                        modifyMessage(sessionId, targetMsg)
+                    }
+                }
+
+                // 直接使用回调，base.ts中已经有throttle了
+                await model.chat(promptMsgs, targetMsg, modifyMessageCallback)
 
                 targetMsg = {
                     ...targetMsg,
@@ -261,7 +274,7 @@ async function _generateName(sessionId: string, modifyName: (sessionId: string, 
                 settings.language
             )
         )
-        name = name.replace(/['"“”]/g, '')
+        name = name.replace(/['"""]/g, '')
         // name = name.slice(0, 50)
         modifyName(session.id, name)
     } catch (e: any) {
@@ -345,25 +358,15 @@ export function getCurrentSessionId() {
     return store.get(atoms.currentSessionIdAtom)
 }
 
-export function getMessageById(id:string){
+export function getMessageById(id: string) {
     const store = getDefaultStore()
-    return store.get(atoms.currentMessageListAtom).find(i=>i.id=id)
+    return store.get(atoms.currentMessageListAtom).find(i => i.id = id)
 }
 
-// export function deleteMessageinCurrentSession(id: string) {
-//     const store = getDefaultStore()
-//     const currentList = store.get(atoms.currentMessageListAtom)
-//     const newMessages = currentList.filter(i=>i.id!==id)
-//     const sessions = store.get(atoms.sessionsAtom)
-//     const currentSession = store.get(atoms.currentSessionAtom)
-//     console.log('delete',id)
-//     // store.set(atoms.sessionsAtom, sessions.map(i=>{
-//     //     if (i.id === currentSession.id) {
-//     //         currentSession.messages = newMessages
-//     //         return currentSession
-//     //     } else {
-//     //         return i
-//     //     }
-//     // }))
-//     store.set(atoms.currentMessageListAtom,newMessages)
-// }
+export function deleteMessageinCurrentSession(id: string) {
+    const store = getDefaultStore()
+    const currentList = store.get(atoms.currentMessageListAtom)
+    const newMessages = currentList.filter(i=>i.id!==id)
+    console.log('delete',id)
+    store.set(atoms.currentMessageListAtom,newMessages)
+}

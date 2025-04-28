@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, memo } from 'react'
 import Box from '@mui/material/Box'
 import Avatar from '@mui/material/Avatar'
-import { Typography, Grid, useTheme, IconButton, Button } from '@mui/material'
+import { Typography, Grid, useTheme, IconButton } from '@mui/material'
 import PersonIcon from '@mui/icons-material/Person'
 import SmartToyIcon from '@mui/icons-material/SmartToy'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -44,9 +44,36 @@ export interface Props {
     onDelete: Function
 }
 
-export default function Message(props: Props) {
+function Message(props: Props) {
     const { t } = useTranslation()
     const theme = useTheme()
+    
+    // 调试用
+    // let count = useRef(0)
+    // // 用于追踪 props 变化
+    // const prevProps = useRef<Props | null>(null);
+    // useEffect(()=>{
+    //     count.current += 1
+    //     console.log('Message component rendered:', count.current)
+    //     if (prevProps.current) {
+    //         const changedProps: Record<string, { from: any, to: any }> = {};
+    //         for (const key of Object.keys(props)) {
+    //             // @ts-ignore
+    //             if (props[key] !== prevProps.current[key]) {
+    //                 changedProps[key] = {
+    //                     // @ts-ignore
+    //                     from: prevProps.current[key],
+    //                     // @ts-ignore
+    //                     to: props[key]
+    //                 };
+    //             }
+    //         }
+    //         if (Object.keys(changedProps).length > 0) {
+    //             console.log('Message 组件渲染，props 变化:', changedProps);
+    //         }
+    //     }
+    //     prevProps.current = props;
+    // })
 
     const showMessageTimestamp = useAtomValue(showMessageTimestampAtom)
     const showModelName = useAtomValue(showModelNameAtom)
@@ -164,6 +191,9 @@ export default function Message(props: Props) {
             </div>
         )
     }
+
+
+
     return (
         <Box
             ref={ref}
@@ -285,3 +315,5 @@ export default function Message(props: Props) {
         </Box>
     )
 }
+
+export default memo(Message)

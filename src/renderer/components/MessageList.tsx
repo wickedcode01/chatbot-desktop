@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import Message from './Message'
 import * as atoms from '../stores/atoms'
 import { useAtom, useAtomValue } from 'jotai'
@@ -6,6 +6,7 @@ import { throttle } from 'lodash'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import { Button, Box, useTheme } from '@mui/material'
 import * as scrollActions from '../stores/scrollActions'
+import { deleteMessageinCurrentSession } from '../stores/sessionActions'
 interface Props { }
 
 export default function MessageList(props: Props) {
@@ -51,6 +52,13 @@ export default function MessageList(props: Props) {
         }
     }, 500)
 
+    const handleDelete = useCallback(
+        (id: string) => {
+            deleteMessageinCurrentSession(id)
+        },
+        []
+    )
+
     useEffect(() => {
         handleScroll();
     }, [currentMessageList]);
@@ -67,9 +75,7 @@ export default function MessageList(props: Props) {
                         sessionType={currentSession.type || 'chat'}
                         className={index === 0 ? 'pt-4' : ''}
                         collapseThreshold={msg.role === 'system' ? 150 : undefined}
-                        onDelete={(id: string) => {
-                            setMessages(currentMessageList.filter((i) => i.id !== id))
-                        }}
+                        onDelete={handleDelete}
                     />
                 ))}
             </div>
